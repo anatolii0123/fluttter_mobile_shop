@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <record>
+        <id>1</id>
+        <city>Zhanjia</city>
+    </record>
+    <record>
+        <id>2</id>
+        <city>Long’an Chengxiangzhen</city>
+    </record>
+    <record>
+        <id>3</id>
+        <city>Lins</city>
+    </record>
+    <record>
+        <id>4</id>
+        <city>Ngorongoro</city>
+    </record>
+    <record>
+        <id>5</id>
+        <city>Maranura</city>
+    </record>
+    <record>
+        <id>6</id>
+        <city>Chepes</city>
+    </record>
+    <record>
+        <id>7</id>
+        <city>Cortiços</city>
+    </record>
+    <record>
+        <id>8</id>
+        <city>Ābyek</city>
+    </record>
+    <record>
+        <id>9</id>
+        <city>Koina</city>
+    </record>
+    <record>
+        <id>10</id>
+        <city>Guimba</city>
+    </record>
+</dataset>
