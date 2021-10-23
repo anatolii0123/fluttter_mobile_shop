@@ -1,4 +1,4 @@
-import 'package:cms_manhattan/main.dart';
+import 'package:cms_manhattan_project/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -17,9 +17,7 @@ Future<Locale> getLocale() async {
 }
 
 Locale _locale(String languageCode) {
-  return languageCode != null && languageCode.isNotEmpty
-      ? Locale(languageCode, '')
-      : Locale('en', '');
+  return languageCode != null && languageCode.isNotEmpty ? Locale(languageCode, '') : Locale('en', '');
 }
 
 void changeLanguage(BuildContext context, String selectedLanguageCode) async {

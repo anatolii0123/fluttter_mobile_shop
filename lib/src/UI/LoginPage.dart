@@ -1,12 +1,11 @@
 import 'dart:convert';
 
-import 'package:cms_manhattan/src/UI/HomePage.dart';
-import 'package:cms_manhattan/src/UI/RegisterPage.dart';
-import 'package:cms_manhattan/src/languages/Languages.dart';
+import 'package:cms_manhattan_project/src/UI/HomePage.dart';
+import 'package:cms_manhattan_project/src/UI/RegisterPage.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/languages/Languages.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
 
 class LoginPage extends StatefulWidget {
   @override
@@ -15,14 +14,10 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final JsonDecoder _decoder = new JsonDecoder();
-  String _password, _email;
+  String? _password, _email;
   final _formKey = GlobalKey<FormState>();
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isLoading = false;
-
-  _LoginPageState() {
-
-  }
 
   Widget _emailField(dis) {
     return Container(
@@ -32,66 +27,67 @@ class _LoginPageState extends State<LoginPage> {
         children: <Widget>[
           Text(
             Languages.of(dis).Email,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15,color: Colors.blueGrey[200]),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.blueGrey[200]),
           ),
           SizedBox(
             height: 10,
           ),
           TextFormField(
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
             onSaved: (val) => _email = val,
-            validator: (value) => EmailValidator.validate(value) ? null : Languages.of(dis).EmailValidMessage,
+            validator: (value) => EmailValidator.validate(value ?? '') ? null : Languages.of(dis).EmailValidMessage,
           )
         ],
       ),
     );
   }
+
   Widget _passField(dis) {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
-        crossAxisAlignment:   CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             Languages.of(dis).Password,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15,color: Colors.blueGrey[200]),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.blueGrey[200]),
           ),
           SizedBox(
             height: 10,
           ),
           TextFormField(
             obscureText: true,
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
             onSaved: (val) => _password = val,
             validator: (val) {
-              return val.length < 5 ?  Languages.of(dis).PasswordValidMessage : null;
+              return (val?.length ?? 0) < 5 ? Languages.of(dis).PasswordValidMessage : null;
             },
           )
         ],
       ),
     );
   }
-  Future<void> saveData(context,user) async {
+
+  Future<void> saveData(context, user) async {
     Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
   }
-  Widget _submitButton(dis) {
-    final form = _formKey.currentState;
-    return InkWell(
-      onTap: () => {
-        if (form.validate())
-          {
-            setState(() {
-              isLoading = true;
-            }),
-            form.save(),
 
-          }
+  Widget _submitButton(dis) {
+    return InkWell(
+      onTap: () async {
+        if (_formKey.currentState!.validate()) {
+          setState(() {
+            isLoading = true;
+          });
+          _formKey.currentState!.save();
+          await RestDatasource().login(
+            _email!,
+            _password!,
+          );
+          setState(() {
+            isLoading = false;
+          });
+        }
       },
       child: Container(
         width: MediaQuery.of(context).size.width,
@@ -99,13 +95,7 @@ class _LoginPageState extends State<LoginPage> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(20)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
             color: Colors.blueGrey[200]),
         child: Text(
           Languages.of(dis).SignIn,
@@ -142,7 +132,7 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.center,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    SizedBox(height:20),
+                    SizedBox(height: 20),
                     Container(
                       alignment: AlignmentDirectional.centerStart,
                       child: Text(
@@ -162,20 +152,16 @@ class _LoginPageState extends State<LoginPage> {
                       height: 20,
                     ),
                     isLoading ? CircularProgressIndicator() : _submitButton(context),
-                    SizedBox(height:30),
-
-
-                    TextButton(onPressed: ()=>{
-
-                    },
+                    SizedBox(height: 30),
+                    TextButton(
+                      onPressed: () => {},
                       child: Text(
-                      Languages.of(context).ResetYourPassword,
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        Languages.of(context).ResetYourPassword,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                      ),
                     ),
-                    ),
-                    TextButton(onPressed: ()=>{
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>RegisterPage()))
-                    },
+                    TextButton(
+                      onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage()))},
                       child: Text(
                         Languages.of(context).CreateAnAccount,
                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
@@ -190,20 +176,23 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
   }
-  Widget _appBar(dis) {
+
+  PreferredSizeWidget _appBar(dis) {
     return AppBar(
       centerTitle: false,
-      title: Text(Languages.of(dis).SignIn,style: TextStyle(
-        color: Colors.black,
-        fontWeight: FontWeight.w900,
-      ),
+      title: Text(
+        Languages.of(dis).SignIn,
+        style: TextStyle(
+          color: Colors.black,
+          fontWeight: FontWeight.w900,
+        ),
       ),
       leading: IconButton(
         icon: Icon(Icons.close, color: Colors.black),
         onPressed: () => Navigator.of(context).pop(),
       ),
       iconTheme: IconThemeData(
-        color: Colors.black,//change your color here
+        color: Colors.black, //change your color here
       ),
       backgroundColor: Colors.white,
     );

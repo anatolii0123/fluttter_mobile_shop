@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<dataset>
+    <record>
+        <id>1</id>
+        <key>Burger Veggie</key>
+    </record>
+    <record>
+        <id>2</id>
+        <key>Wonton Wrappers</key>
+    </record>
+    <record>
+        <id>3</id>
+        <key>Liqueur Banana, Ramazzotti</key>
+    </record>
+    <record>
+        <id>4</id>
+        <key>Oven Mitts 17 Inch</key>
+    </record>
+    <record>
+        <id>5</id>
+        <key>Pickle - Dill</key>
+    </record>
+</dataset>

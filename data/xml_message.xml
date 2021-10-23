@@ -35,39 +35,5 @@
         <date>11:22 PM</date>
         <image>https://robohash.org/eaipsaconsequuntur.png?size=150x150&amp;set=set1</image>
     </record>
-    <record>
-        <id>6</id>
-        <user_name>Craggie</user_name>
-        <message>sit amet turpis elementum ligula vehicula consequat morbi a ipsum integer a nibh in</message>
-        <date>5:01 PM</date>
-        <image>https://robohash.org/doloretqui.png?size=150x150&amp;set=set1</image>
-    </record>
-    <record>
-        <id>7</id>
-        <user_name>Ronnie</user_name>
-        <message>suspendisse ornare consequat lectus in est risus auctor sed tristique in tempus sit amet sem fusce consequat nulla nisl</message>
-        <date>5:48 AM</date>
-        <image>https://robohash.org/harumexpeditaquis.png?size=150x150&amp;set=set1</image>
-    </record>
-    <record>
-        <id>8</id>
-        <user_name>Gil</user_name>
-        <message>vestibulum rutrum rutrum neque aenean auctor gravida sem praesent id massa id nisl venenatis lacinia</message>
-        <date>1:48 PM</date>
-        <image>https://robohash.org/nametoptio.png?size=150x150&amp;set=set1</image>
-    </record>
-    <record>
-        <id>9</id>
-        <user_name>Michaeline</user_name>
-        <message>dis parturient montes nascetur ridiculus mus vivamus vestibulum sagittis sapien</message>
-        <date>6:12 AM</date>
-        <image>https://robohash.org/quiidid.png?size=150x150&amp;set=set1</image>
-    </record>
-    <record>
-        <id>10</id>
-        <user_name>Carver</user_name>
-        <message>lacus purus aliquet at feugiat non pretium quis lectus suspendisse potenti</message>
-        <date>4:19 AM</date>
-        <image>https://robohash.org/quaerateligendiet.png?size=150x150&amp;set=set1</image>
-    </record>
+
 </dataset>

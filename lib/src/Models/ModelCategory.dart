@@ -1,11 +1,12 @@
 class ModelCategory {
-  String id,name,image,cat_store;
+  String id, name, image;
+  // String? cat_store;
   // ModelCategory({this.id,this.name,this.image});
-  ModelCategory(this.id,this.name,this.image);
-  String get cat_image=>image;
-  String get cat_name=>name;
-  String get cat_id=>id;
- /* factory ModelCategory.set(id,name,image){
+  ModelCategory(this.id, this.name, this.image);
+  String get cat_image => image;
+  String get cat_name => name;
+  String get cat_id => id;
+  /* factory ModelCategory.set(id,name,image){
     return ModelCategory(id:id,name: name,image: image);
   }
 

@@ -1,18 +1,10 @@
-import 'package:cms_manhattan/src/Models/ModelAddress.dart';
-import 'package:cms_manhattan/src/Models/ModelCategory.dart';
-import 'package:cms_manhattan/src/Models/ModelCity.dart';
-import 'package:cms_manhattan/src/Models/ModelProduct.dart';
-import 'package:cms_manhattan/src/UI/AddAddressPage.dart';
-import 'package:cms_manhattan/src/UI/HomePage.dart';
-import 'package:cms_manhattan/src/UI/PaymentPage.dart';
-import 'package:cms_manhattan/src/UI/ProductDetailsPage.dart';
-import 'package:cms_manhattan/src/UI/SuccessPage.dart';
-import 'package:cms_manhattan/src/Utils/RestDatasource.dart';
-import 'package:cms_manhattan/src/languages/Languages.dart';
+import 'package:cms_manhattan_project/src/Models/ModelAddress.dart';
+import 'package:cms_manhattan_project/src/UI/AddAddressPage.dart';
+import 'package:cms_manhattan_project/src/UI/SuccessPage.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/languages/Languages.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
 
 class AddressPage extends StatefulWidget {
   @override
@@ -22,13 +14,13 @@ class AddressPage extends StatefulWidget {
 class _PageState extends State<AddressPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   bool isLoading = false;
-  RestDatasource api;
+  late RestDatasource api;
   int _radioValue1 = -1;
   _PageState() {
     api = new RestDatasource();
   }
 
-  Widget _appBar(dis) {
+  PreferredSizeWidget _appBar(dis) {
     return AppBar(
       centerTitle: false,
       title: Text(
@@ -39,14 +31,13 @@ class _PageState extends State<AddressPage> {
         color: Colors.black,
       ),
       actions: [
-        IconButton(icon: Icon(Icons.add,color: Colors.blue,),
+        IconButton(
+            icon: Icon(
+              Icons.add,
+              color: Colors.blue,
+            ),
             tooltip: 'Add Address',
-            onPressed: ()=>{
-          Navigator.push(context,
-              MaterialPageRoute(builder: (context)=>AddAddressPage(()=>{
-
-              })))
-        })
+            onPressed: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => AddAddressPage(() => {})))})
       ],
       backgroundColor: Colors.white,
     );
@@ -65,13 +56,13 @@ class _PageState extends State<AddressPage> {
               future: api.getAddress(context),
               builder: (context, data) {
                 if (data.hasData) {
-                  List<ModelAddress> list = data.data;
+                  List<ModelAddress> list = data.data as List<ModelAddress>? ?? [];
                   return Expanded(
                     child: ListView.builder(
                         padding: const EdgeInsets.all(8),
                         itemCount: list.length,
                         itemBuilder: (BuildContext context, int index) {
-                          return _Address(list[index],index);
+                          return _Address(list[index], index);
                         }),
                   );
                 } else {
@@ -85,78 +76,75 @@ class _PageState extends State<AddressPage> {
 
   Widget _Address(ModelAddress address, int index) {
     return InkWell(
-              child: Card(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  child:Row(
+      child: Card(
+          child: Container(
+              padding: EdgeInsets.all(5),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Radio(
+                    value: index,
+                    groupValue: _radioValue1,
+                    onChanged: _handleRadioValueChange1,
+                  ),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Radio(
-                        value: index,
-                        groupValue: _radioValue1,
-                        onChanged: _handleRadioValueChange1,
+                      Text(
+                        address.name,
+                        softWrap: true,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                          color: Colors.black,
+                        ),
                       ),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text(
-                            address.name,
-                            softWrap: true,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                              color: Colors.black,
-                            ),
-                          ),
-                          Text(
-                            address.mobile,
-                            softWrap: true,
-                            maxLines: 2,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 14,
-                              color: Colors.black,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            address.address,
-                            softWrap: true,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                          Text(
-                            address.pin,
-                            softWrap: true,
-                            textAlign: TextAlign.start,
-                            style: TextStyle(
-                              fontWeight: FontWeight.normal,
-                              fontSize: 16,
-                              color: Colors.black,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        address.mobile,
+                        softWrap: true,
+                        maxLines: 2,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 14,
+                          color: Colors.black,
+                        ),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        address.address,
+                        softWrap: true,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        address.pin,
+                        softWrap: true,
+                        textAlign: TextAlign.start,
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          fontSize: 16,
+                          color: Colors.black,
+                        ),
                       ),
                     ],
-                  )
-                )
-                ),
-              onTap: ()=>{
-                _handleRadioValueChange1(index)
-              },
-            );
+                  ),
+                ],
+              ))),
+      onTap: () => {_handleRadioValueChange1(index)},
+    );
   }
-  void _handleRadioValueChange1(int value) {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context)=>SuccessPage()),(route)=>false);
+
+  void _handleRadioValueChange1(int? value) {
+    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => SuccessPage()), (route) => false);
   }
 }

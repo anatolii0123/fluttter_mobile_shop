@@ -1,9 +1,9 @@
-import 'package:cms_manhattan/src/Models/ModelCity.dart';
-import 'package:cms_manhattan/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/Models/ModelCity.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 typedef StepValue = Function();
 
@@ -19,11 +19,11 @@ class AddAddressPage extends StatefulWidget {
 class _PageState extends State<AddAddressPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
-  ModelCity SelectedCity;
-  String _neighborhood, _street;
+  ModelCity? SelectedCity;
+  String? _neighborhood, _street;
   bool isLoading = false;
-  RestDatasource api;
-  String userID;
+  late RestDatasource api;
+  String? userID;
 
   _PageState() {
     api = new RestDatasource();
@@ -35,10 +35,9 @@ class _PageState extends State<AddAddressPage> {
     userID = prefs.getString('id');
   }
 
-
   void AddAddress() {
     final form = formKey.currentState;
-    if (form.validate()) {
+    if (form!.validate()) {
       setState(() {
         isLoading = true;
       });
@@ -49,11 +48,11 @@ class _PageState extends State<AddAddressPage> {
           isLoading=false;
         }),
         if(value.status=="1"){
-          Toast.show('Address Added Successfully', context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM),
+          Fluttertoast.showToast('Address Added Successfully', context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM),
           widget.callback(),
           Navigator.pop(context)
         }else{
-          Toast.show('Failed, Please Try Again!', context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM),
+          Fluttertoast.showToast('Failed, Please Try Again!', context, duration: Toast.LENGTH_SHORT, gravity:  Toast.BOTTOM),
         }
       }
       );
@@ -78,19 +77,15 @@ class _PageState extends State<AddAddressPage> {
           TextFormField(
             onSaved: (value) => _neighborhood = value,
             validator: (val) {
-              return val.length < 10
-                  ? "Mobile must have at least 10 chars"
-                  : null;
+              return (val?.length ?? 0) < 10 ? "Mobile must have at least 10 chars" : null;
             },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
           )
         ],
       ),
     );
   }
+
   Widget _FullName() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -107,19 +102,15 @@ class _PageState extends State<AddAddressPage> {
           TextFormField(
             onSaved: (value) => _neighborhood = value,
             validator: (val) {
-              return val.length < 3
-                  ? "full name must have at least 3 chars"
-                  : null;
+              return (val?.length ?? 0) < 3 ? "full name must have at least 3 chars" : null;
             },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
           )
         ],
       ),
     );
   }
+
   Widget _City() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -136,19 +127,15 @@ class _PageState extends State<AddAddressPage> {
           TextFormField(
             onSaved: (value) => _neighborhood = value,
             validator: (val) {
-              return val.length < 3
-                  ? "City must have at least 3 chars"
-                  : null;
+              return (val?.length ?? 0) < 3 ? "City must have at least 3 chars" : null;
             },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
           )
         ],
       ),
     );
   }
+
   Widget _State() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -165,19 +152,15 @@ class _PageState extends State<AddAddressPage> {
           TextFormField(
             onSaved: (value) => _neighborhood = value,
             validator: (val) {
-              return val.length < 3
-                  ? "State must have at least 3 chars"
-                  : null;
+              return (val?.length ?? 0) < 3 ? "State must have at least 3 chars" : null;
             },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
           )
         ],
       ),
     );
   }
+
   Widget _Zip() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
@@ -194,14 +177,9 @@ class _PageState extends State<AddAddressPage> {
           TextFormField(
             onSaved: (value) => _street = value,
             validator: (val) {
-              return val.length < 3
-                  ? "Zip must have at least 3 chars"
-                  : null;
+              return (val?.length ?? 0) < 3 ? "Zip must have at least 3 chars" : null;
             },
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
           )
         ],
       ),
@@ -220,109 +198,99 @@ class _PageState extends State<AddAddressPage> {
           body: SingleChildScrollView(
             child: Expanded(
               child: Container(
-                width: width,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      SizedBox(
-                        height: 10,
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _FullName(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _Mobile(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _City(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _State(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      _Zip(),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Text(
-                        'Country',
-                        style: TextStyle(
-                            fontSize: 18,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      FutureBuilder(
-                          future: api.getCity(context),
-                          builder: (context,value){
-                            if(value.hasData) {
-                              List<ModelCity>city = value.data;
-                              return DropdownButton<ModelCity>(
-                                isExpanded: true,
-                                value: SelectedCity==null?city[0]:SelectedCity,
-                                icon: Icon(Icons.arrow_drop_down),
-                                iconSize: 24,
-                                elevation: 16,
-                                dropdownColor: Colors.white,
-                                style: TextStyle(color: Colors.red, fontSize: 18),
-                                underline: Container(
-                                  height: 2,
-                                  color: Colors.deepPurpleAccent,
-                                ),
-                                onChanged: (ModelCity data) {
-                                  /*setState(() {
+                  width: width,
+                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                  child: Form(
+                    key: formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _FullName(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _Mobile(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _City(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _State(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        _Zip(),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        Text(
+                          'Country',
+                          style: TextStyle(fontSize: 18, color: Colors.black, fontWeight: FontWeight.bold),
+                        ),
+                        FutureBuilder(
+                            future: api.getCity(context),
+                            builder: (context, value) {
+                              if (value.hasData) {
+                                List<ModelCity> city = value.data as List<ModelCity>? ?? [];
+                                return DropdownButton<ModelCity>(
+                                  isExpanded: true,
+                                  value: SelectedCity == null ? city[0] : SelectedCity,
+                                  icon: Icon(Icons.arrow_drop_down),
+                                  iconSize: 24,
+                                  elevation: 16,
+                                  dropdownColor: Colors.white,
+                                  style: TextStyle(color: Colors.red, fontSize: 18),
+                                  underline: Container(
+                                    height: 2,
+                                    color: Colors.deepPurpleAccent,
+                                  ),
+                                  onChanged: (ModelCity? data) {
+                                    /*setState(() {
                               SelectedCity = data;
                             });*/
-                                },
-                                items:city.map<DropdownMenuItem<ModelCity>>(
-                                        (ModelCity value) {
-                                      return DropdownMenuItem<ModelCity>(
-                                        value: value,
-                                        child: Text(
-                                          value.name,
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              backgroundColor: Colors.white),
-                                        ),
-                                      );
-                                    }).toList(),
-                              );
-                            }else{
-                              return CircularProgressIndicator();
-                            }
-                          }),
-
-                      SizedBox(
-                        height: 10,
-                      ),
-                      FlatButton(
-                        child: isLoading
-                            ? CircularProgressIndicator()
-                            : Text('Submit', style: TextStyle(fontSize: 20)),
-                        onPressed: () => {
-                          AddAddress(),
-                        },
-                        color: Colors.blueGrey,
-                        textColor: Colors.white,
-                      ),
-                    ],
-                  ),
-                )
-              ),
+                                  },
+                                  items: city.map<DropdownMenuItem<ModelCity>>((ModelCity value) {
+                                    return DropdownMenuItem<ModelCity>(
+                                      value: value,
+                                      child: Text(
+                                        value.name,
+                                        style: TextStyle(color: Colors.black, backgroundColor: Colors.white),
+                                      ),
+                                    );
+                                  }).toList(),
+                                );
+                              } else {
+                                return CircularProgressIndicator();
+                              }
+                            }),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        FlatButton(
+                          child: isLoading ? CircularProgressIndicator() : Text('Submit', style: TextStyle(fontSize: 20)),
+                          onPressed: () => {
+                            AddAddress(),
+                          },
+                          color: Colors.blueGrey,
+                          textColor: Colors.white,
+                        ),
+                      ],
+                    ),
+                  )),
             ),
           )),
     );
   }
 
-  Widget _appBar() {
+  PreferredSizeWidget _appBar() {
     return AppBar(
       centerTitle: true,
       title: Text(

@@ -1,7 +1,7 @@
-import 'package:cms_manhattan/src/languages/Languages.dart';
+import 'package:cms_manhattan_project/src/languages/Languages.dart';
+
 // TODO: implement Language for Russian
 class LanguageRu extends Languages {
-
   @override
   String get appName => "CMS Manhattan";
 
@@ -162,5 +162,4 @@ class LanguageRu extends Languages {
   @override
   // TODO: implement resolutionCenter
   String get resolutionCenter => "Resolution Center";
-
 }

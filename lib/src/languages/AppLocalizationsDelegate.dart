@@ -1,17 +1,15 @@
-import 'package:cms_manhattan/src/languages/LanguageCh.dart';
-import 'package:cms_manhattan/src/languages/LanguageEn.dart';
-import 'package:cms_manhattan/src/languages/LanguageRu.dart';
-import 'package:cms_manhattan/src/languages/LanguageSp.dart';
-import 'package:cms_manhattan/src/languages/Languages.dart';
+import 'package:cms_manhattan_project/src/languages/LanguageCh.dart';
+import 'package:cms_manhattan_project/src/languages/LanguageEn.dart';
+import 'package:cms_manhattan_project/src/languages/LanguageRu.dart';
+import 'package:cms_manhattan_project/src/languages/LanguageSp.dart';
+import 'package:cms_manhattan_project/src/languages/Languages.dart';
 import 'package:flutter/material.dart';
 
 class AppLocalizationsDelegate extends LocalizationsDelegate<Languages> {
-
   const AppLocalizationsDelegate();
 
   @override
-  bool isSupported(Locale locale) =>
-      ['en', 'es', 'zh', 'ru'].contains(locale.languageCode);
+  bool isSupported(Locale locale) => ['en', 'es', 'zh', 'ru'].contains(locale.languageCode);
 
   @override
   Future<Languages> load(Locale locale) => _load(locale);
@@ -34,5 +32,4 @@ class AppLocalizationsDelegate extends LocalizationsDelegate<Languages> {
 
   @override
   bool shouldReload(LocalizationsDelegate<Languages> old) => false;
-
 }

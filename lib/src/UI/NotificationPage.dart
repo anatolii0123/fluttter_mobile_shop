@@ -1,9 +1,11 @@
-import 'package:cms_manhattan/src/Models/ModelNotification.dart';
-import 'package:cms_manhattan/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/Models/ModelCategory.dart';
+import 'package:cms_manhattan_project/src/Models/ModelNotification.dart';
+import 'package:cms_manhattan_project/src/UI/ProductDetailsPage.dart';
+import 'package:cms_manhattan_project/src/UI/ProductPage.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+
 class NotificationPage extends StatefulWidget {
   @override
   _PageState createState() => _PageState();
@@ -11,14 +13,12 @@ class NotificationPage extends StatefulWidget {
 
 class _PageState extends State<NotificationPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<String> list;
+  List<String>? list;
   bool isLoading = false;
-  RestDatasource api;
-  _PageState(){
-    api=new RestDatasource();
+  late RestDatasource api;
+  _PageState() {
+    api = new RestDatasource();
   }
-
-
 
   Widget _Notification(ModelNotification data) {
     return Container(
@@ -32,15 +32,19 @@ class _PageState extends State<NotificationPage> {
             child: InkWell(
               child: Container(
                 padding: EdgeInsets.all(5),
-                child:Row(
+                child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.notifications,color: Colors.blue,),
+                    Icon(
+                      Icons.notifications,
+                      color: Colors.blue,
+                    ),
                     SizedBox(
                       width: 10,
                     ),
-                    Expanded(child:Column(
+                    Expanded(
+                        child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -82,29 +86,31 @@ class _PageState extends State<NotificationPage> {
                         ),
                       ],
                     ))
-
-
                   ],
                 ),
               ),
-              onTap: (){
-
+              onTap: () {
+                api
+                    .getProduct(context)
+                    .then((value) => {Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailsPage.set(value[0])))});
               },
             )));
   }
 
-  Widget _appBar() {
+  PreferredSizeWidget _appBar() {
     return AppBar(
       centerTitle: true,
-      title: Text('Notification List',style: TextStyle(
-          color: Colors.black
-      ),),
+      title: Text(
+        'Notification List',
+        style: TextStyle(color: Colors.black),
+      ),
       iconTheme: IconThemeData(
         color: Colors.black, //change your color here
       ),
       backgroundColor: Colors.white,
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -112,13 +118,13 @@ class _PageState extends State<NotificationPage> {
       child: Scaffold(
           key: _scaffoldKey,
           backgroundColor: Colors.white,
-          body:Container(
+          body: Container(
             child: FutureBuilder(
                 future: api.getNotification(context),
-                builder: (context,data){
+                builder: (context, data) {
                   print(data);
-                  if(data.hasData){
-                    List<ModelNotification>list=data.data;
+                  if (data.hasData) {
+                    List<ModelNotification> list = data.data as List<ModelNotification>? ?? [];
                     return ListView.builder(
                       scrollDirection: Axis.vertical,
                       itemCount: list.length,
@@ -126,13 +132,11 @@ class _PageState extends State<NotificationPage> {
                         return _Notification(list[index]);
                       },
                     );
-                  } else{
+                  } else {
                     return Center(child: CircularProgressIndicator());
                   }
-                }
-            ),
-          )
-      ),
+                }),
+          )),
     );
   }
 }

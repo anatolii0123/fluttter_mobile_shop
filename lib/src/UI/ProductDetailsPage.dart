@@ -1,38 +1,41 @@
 import 'package:carousel_slider/carousel_slider.dart';
-import 'package:cms_manhattan/src/Models/ModelOrder.dart';
-import 'package:cms_manhattan/src/Models/ModelProduct.dart';
-import 'package:cms_manhattan/src/UI/CartPage.dart';
-import 'package:cms_manhattan/src/Utils/RestDatasource.dart';
-import 'package:cms_manhattan/src/languages/Languages.dart';
+import 'package:cms_manhattan_project/src/Models/ModelProduct.dart';
+import 'package:cms_manhattan_project/src/Session/SessionManager.dart';
+import 'package:cms_manhattan_project/src/UI/AddOfferPage.dart';
+import 'package:cms_manhattan_project/src/UI/CartPage.dart';
+import 'package:cms_manhattan_project/src/UI/FullScreenImagePage.dart';
+import 'package:cms_manhattan_project/src/UI/PostItemPage.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/languages/Languages.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import 'ChatPage.dart';
 
 class ProductDetailsPage extends StatefulWidget {
   ModelProduct product;
-  ModelOrder order;
   @override
   _PageState createState() => _PageState();
 
   ProductDetailsPage.set(this.product);
-
 }
 
 class _PageState extends State<ProductDetailsPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<String> list;
+  List<String>? list;
   bool isLoading = false;
-  String SelectedSize='Size',SelectedColor='Color';
-  RestDatasource api;
-  _PageState(){
-    api=new RestDatasource();
+  bool isFav = false;
+  String SelectedSize = 'Size', SelectedColor = 'Color';
+  late RestDatasource api;
+  late SessionManager session;
+  _PageState() {
+    api = new RestDatasource();
+    session = new SessionManager();
   }
-  Widget _appBar(dis) {
+  PreferredSizeWidget _appBar(dis) {
     return AppBar(
       centerTitle: false,
       title: Text(
@@ -43,8 +46,21 @@ class _PageState extends State<ProductDetailsPage> {
         color: Colors.black,
       ),
       backgroundColor: Colors.white,
+      actions: [
+        IconButton(
+          onPressed: () {
+            Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (BuildContext context) => PostItemPage(isEdit: true),
+              ),
+            );
+          },
+          icon: Icon(Icons.edit),
+        ),
+      ],
     );
   }
+
   @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
@@ -55,6 +71,7 @@ class _PageState extends State<ProductDetailsPage> {
           appBar: _appBar(context),
           body: Container(
             child: ListView(
+              scrollDirection: Axis.vertical,
               children: [
                 CarouselSlider(
                   options: CarouselOptions(height: 250.0),
@@ -65,7 +82,11 @@ class _PageState extends State<ProductDetailsPage> {
                             width: MediaQuery.of(context).size.width,
                             margin: EdgeInsets.symmetric(horizontal: 2.0),
                             decoration: BoxDecoration(color: Colors.grey[100]),
-                            child: Image.asset('images/image_1.png'));
+                            child: InkWell(
+                              child: Image.asset('images/image_1.png'),
+                              onTap: () =>
+                                  {Navigator.push(context, MaterialPageRoute(builder: (context) => FullScreenImagePage.set(widget.product)))},
+                            ));
                       },
                     );
                   }).toList(),
@@ -79,16 +100,11 @@ class _PageState extends State<ProductDetailsPage> {
                         // width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(5),
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(color: Colors.green),
-                            color: Colors.white),
                         child: DropdownButton<String>(
                           value: SelectedSize,
                           isExpanded: true,
                           dropdownColor: Colors.white,
-                          items: <String>['Size', '30', '40', '50']
-                              .map((String value) {
+                          items: <String>['Size', '30', '40', '50'].map((String value) {
                             return new DropdownMenuItem<String>(
                               value: value,
                               child: new Text(
@@ -99,7 +115,7 @@ class _PageState extends State<ProductDetailsPage> {
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              SelectedSize=value;
+                              SelectedSize = value ?? SelectedSize;
                             });
                           },
                         ),
@@ -111,16 +127,11 @@ class _PageState extends State<ProductDetailsPage> {
                         // width: MediaQuery.of(context).size.width,
                         margin: EdgeInsets.all(5),
                         alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                            borderRadius: BorderRadius.all(Radius.circular(10)),
-                            border: Border.all(color: Colors.green),
-                            color: Colors.white),
                         child: DropdownButton<String>(
                           value: SelectedColor,
                           isExpanded: true,
                           dropdownColor: Colors.white,
-                          items: <String>['Color', 'Black', 'White', 'Red']
-                              .map((String value) {
+                          items: <String>['Color', 'Black', 'White', 'Red'].map((String value) {
                             return new DropdownMenuItem<String>(
                               value: value,
                               child: new Text(
@@ -131,7 +142,7 @@ class _PageState extends State<ProductDetailsPage> {
                           }).toList(),
                           onChanged: (value) {
                             setState(() {
-                              SelectedColor=value;
+                              SelectedColor = value ?? SelectedColor;
                             });
                           },
                         ),
@@ -139,20 +150,29 @@ class _PageState extends State<ProductDetailsPage> {
                     ),
                     Expanded(
                         child: Container(
-                      margin: EdgeInsets.all(5),
-                      child: Image.asset(
-                        "images/favorite.png",
-                        width: 50,
-                      ),
-                    ))
+                            margin: EdgeInsets.all(5),
+                            child: InkWell(
+                              child: Icon(
+                                isFav ? Icons.favorite : Icons.favorite_border,
+                                color: Colors.blue,
+                              ),
+                              onTap: () {
+                                setState(() {
+                                  isFav = !isFav;
+                                });
+                                if (isFav) {
+                                  AddToFeed();
+                                } else {
+                                  RemoveToFeed();
+                                }
+                              },
+                            )))
                   ],
                 ),
                 SizedBox(
                   height: 5,
                 ),
-
-                Expanded(
-                    child: Container(
+                Container(
                   padding: EdgeInsets.all(10),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +211,7 @@ class _PageState extends State<ProductDetailsPage> {
                       Row(
                         children: [
                           Text(
-                            "${widget.product.price } +shipping",
+                            "${widget.product.price} +shipping",
                             softWrap: true,
                             textAlign: TextAlign.start,
                             style: TextStyle(
@@ -251,15 +271,14 @@ class _PageState extends State<ProductDetailsPage> {
                       ),
                     ],
                   ),
-                )),
+                ),
                 _BuyNowButton(),
                 _AddToCartButton(),
                 _MakeOffer(),
                 _Message(),
                 Container(
                   alignment: AlignmentDirectional.centerStart,
-                  margin: EdgeInsets.symmetric(
-                      horizontal: 15.0, vertical: 15.0),
+                  margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 15.0),
                   child: Text(
                     "You can also like this",
                     style: TextStyle(
@@ -278,10 +297,7 @@ class _PageState extends State<ProductDetailsPage> {
 
   Widget _BuyNowButton() {
     return InkWell(
-      onTap: () => {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CartPage()))
-      },
+      onTap: () => {AddTocart(), Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()))},
       child: Container(
         width: MediaQuery.of(context).size.width,
         height: 45,
@@ -290,13 +306,7 @@ class _PageState extends State<ProductDetailsPage> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(20)),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
             color: Colors.blue),
         child: Text(
           Languages.of(context).BuyNow,
@@ -306,44 +316,49 @@ class _PageState extends State<ProductDetailsPage> {
     );
   }
 
-  Widget _AddToCartButton() {
-    return InkWell(
-      onTap: () => {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => CartPage()))
-      },
-      child: Container(
-        width: MediaQuery.of(context).size.width,
-        margin: EdgeInsets.all(10),
-        height: 45,
-        padding: EdgeInsets.symmetric(vertical: 10),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: Colors.blue,width: 1),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
-            color: Colors.white),
-        child: Text(
-          Languages.of(context).AddToCart,
-          style: TextStyle(fontSize: 20, color: Colors.blue),
-        ),
-      ),
-    );
+  Future AddTocart() async {
+    List<ModelProduct> oldList = [];
+    if (await session.readCartSize() != null) oldList.addAll(await session.getFromCart());
+    oldList.add(widget.product);
+    await session.AddToCart(ModelProduct.encode(oldList));
+    oldList.clear();
   }
-  Widget _MakeOffer() {
+
+  Future AddToFeed() async {
+    List<ModelProduct> oldList = [];
+    if (await session.readFeedSize() != null) oldList.addAll(await session.getFromFeed());
+    oldList.add(widget.product);
+    await session.AddToFeed(ModelProduct.encode(oldList));
+    oldList.clear();
+    Fluttertoast.showToast(msg: "Added to Saved page Successfully");
+  }
+
+  Future RemoveToFeed() async {
+    List<ModelProduct> oldList = [];
+    if (await session.readFeedSize() != null) oldList.addAll(await session.getFromFeed());
+    oldList.remove(widget.product);
+    await session.AddToFeed(ModelProduct.encode(oldList));
+    oldList.clear();
+    Fluttertoast.showToast(msg: "Remove Successfully");
+  }
+
+  Future AddToOffer() async {
+    List<ModelProduct> oldList = [];
+    if (await session.readOfferSize() != null) oldList.addAll(await session.getFromOffer());
+    oldList.add(widget.product);
+    await session.AddToOffer(ModelProduct.encode(oldList));
+    oldList.clear();
+  }
+
+  Widget _MakeOfferOld() {
+    final height = MediaQuery.of(context).size.height;
     return InkWell(
       onTap: () => {
         showModalBottomSheet<void>(
           context: context,
           builder: (BuildContext context) {
             return Container(
-              height: 300,
+              height: height / 2,
               color: Colors.white,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
@@ -351,7 +366,8 @@ class _PageState extends State<ProductDetailsPage> {
                 children: <Widget>[
                   AppBar(
                     centerTitle: false,
-                    title: Text('Make Offer',
+                    title: Text(
+                      'Make Offer',
                       style: TextStyle(color: Colors.black),
                     ),
                     iconTheme: IconThemeData(
@@ -361,9 +377,12 @@ class _PageState extends State<ProductDetailsPage> {
                   ),
                   _OfferField(),
                   ElevatedButton(
-                    child: const Text('Create Offer'),
-                    onPressed: () => Navigator.pop(context),
-                  )
+                      child: const Text('Create Offer'),
+                      onPressed: () => {
+                            AddToOffer(),
+                            Fluttertoast.showToast(msg: "Added to offer page Successfully"),
+                            Navigator.pop(context),
+                          })
                 ],
               ),
             );
@@ -378,14 +397,8 @@ class _PageState extends State<ProductDetailsPage> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: Colors.blue,width: 1),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
+            border: Border.all(color: Colors.blue, width: 1),
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
             color: Colors.white),
         child: Text(
           'Make Offer',
@@ -394,11 +407,11 @@ class _PageState extends State<ProductDetailsPage> {
       ),
     );
   }
-  Widget _Message() {
+
+  Widget _MakeOffer() {
+    final height = MediaQuery.of(context).size.height;
     return InkWell(
-      onTap: () => {
-       Navigator.push(context, MaterialPageRoute(builder: (context)=>ChatPage()))
-      },
+      onTap: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => AddOfferPage(widget.product)))},
       child: Container(
         width: MediaQuery.of(context).size.width,
         margin: EdgeInsets.all(10),
@@ -407,14 +420,52 @@ class _PageState extends State<ProductDetailsPage> {
         alignment: Alignment.center,
         decoration: BoxDecoration(
             borderRadius: BorderRadius.all(Radius.circular(20)),
-            border: Border.all(color: Colors.blue,width: 1),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                  color: Colors.grey.shade200,
-                  offset: Offset(2, 4),
-                  blurRadius: 5,
-                  spreadRadius: 2)
-            ],
+            border: Border.all(color: Colors.blue, width: 1),
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
+            color: Colors.white),
+        child: Text(
+          'Make Offer',
+          style: TextStyle(fontSize: 20, color: Colors.blue),
+        ),
+      ),
+    );
+  }
+
+  Widget _AddToCartButton() {
+    return InkWell(
+      onTap: () => {AddTocart(), Navigator.push(context, MaterialPageRoute(builder: (context) => CartPage()))},
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.all(10),
+        height: 45,
+        padding: EdgeInsets.symmetric(vertical: 10),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: Colors.blue, width: 1),
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
+            color: Colors.white),
+        child: Text(
+          Languages.of(context).AddToCart,
+          style: TextStyle(fontSize: 20, color: Colors.blue),
+        ),
+      ),
+    );
+  }
+
+  Widget _Message() {
+    return InkWell(
+      onTap: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => ChatPage()))},
+      child: Container(
+        width: MediaQuery.of(context).size.width,
+        margin: EdgeInsets.all(10),
+        height: 45,
+        padding: EdgeInsets.symmetric(vertical: 10),
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+            borderRadius: BorderRadius.all(Radius.circular(20)),
+            border: Border.all(color: Colors.blue, width: 1),
+            boxShadow: <BoxShadow>[BoxShadow(color: Colors.grey.shade200, offset: Offset(2, 4), blurRadius: 5, spreadRadius: 2)],
             color: Colors.white),
         child: Text(
           'Message',
@@ -423,31 +474,30 @@ class _PageState extends State<ProductDetailsPage> {
       ),
     );
   }
+
   Widget _OfferField() {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+      margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Text(
             "Make Your Offer",
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15,color: Colors.blueGrey[200]),
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.blueGrey[200]),
           ),
           SizedBox(
             height: 10,
           ),
           TextFormField(
-            decoration: InputDecoration(
-                border: InputBorder.none,
-                fillColor: Color(0xfff3f3f4),
-                filled: true),
+            decoration: InputDecoration(border: InputBorder.none, fillColor: Color(0xfff3f3f4), filled: true),
             onSaved: (val) => {},
-            validator: (value) => value.isNotEmpty ? null : "Please enter a Offer",
+            validator: (value) => (value?.isNotEmpty ?? false) ? null : "Please enter a Offer",
           )
         ],
       ),
     );
   }
+
   Widget _product() {
     return Container(
         decoration: BoxDecoration(
@@ -455,11 +505,11 @@ class _PageState extends State<ProductDetailsPage> {
         ),
         margin: EdgeInsets.symmetric(vertical: 5.0),
         height: 220,
-        child:FutureBuilder(
+        child: FutureBuilder(
             future: api.getProduct(context),
-            builder: (context,data){
-              if(data.hasData){
-                List<ModelProduct>list=data.data;
+            builder: (context, data) {
+              if (data.hasData) {
+                List<ModelProduct> list = data.data as List<ModelProduct>? ?? [];
                 return ListView.builder(
                     scrollDirection: Axis.horizontal,
                     itemCount: list.length,
@@ -467,13 +517,15 @@ class _PageState extends State<ProductDetailsPage> {
                       return Container(
                           width: 180,
                           margin: EdgeInsets.symmetric(horizontal: 8.0),
-                          child:InkWell(
-                            child:Card(
+                          child: InkWell(
+                            child: Card(
                               child: Column(
                                 children: [
                                   FadeInImage(
                                     placeholder: AssetImage('images/logo.png'),
-                                    image: NetworkImage(list[index].image,),
+                                    image: NetworkImage(
+                                      list[index].image,
+                                    ),
                                     height: 100.0,
                                     width: 150.0,
                                   ),
@@ -506,7 +558,7 @@ class _PageState extends State<ProductDetailsPage> {
                                             fontSize: 14,
                                             color: Colors.black,
                                           ),
-                                        ),//*
+                                        ), //*
                                         RatingBar.builder(
                                           initialRating: list[index].rating,
                                           minRating: 1,
@@ -548,25 +600,20 @@ class _PageState extends State<ProductDetailsPage> {
                                             ),
                                           ],
                                         ),
-
                                       ],
                                     ),
                                   )
                                 ],
                               ),
                             ),
-                            onTap: (){
-                              Navigator.push(context, MaterialPageRoute(builder: (context)=>ProductDetailsPage.set(list[index])));
+                            onTap: () {
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => ProductDetailsPage.set(list[index])));
                             },
-                          )
-
-                      );
+                          ));
                     });
-              }else{
+              } else {
                 return Container(child: CircularProgressIndicator());
               }
-            }
-        )
-    );
+            }));
   }
 }

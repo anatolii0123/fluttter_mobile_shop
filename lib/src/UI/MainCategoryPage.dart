@@ -1,23 +1,21 @@
-import 'package:cms_manhattan/src/Models/ModelCategory.dart';
-import 'package:cms_manhattan/src/UI/SubCategoryPage.dart';
-import 'package:cms_manhattan/src/Utils/RestDatasource.dart';
+import 'package:cms_manhattan_project/src/Models/ModelCategory.dart';
+import 'package:cms_manhattan_project/src/UI/SubCategoryPage.dart';
+import 'package:cms_manhattan_project/src/Utils/RestDatasource.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
+
 class MainCategoryPage extends StatefulWidget {
   @override
   _PageState createState() => _PageState();
-
 }
 
 class _PageState extends State<MainCategoryPage> {
   final _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<String> list;
+  List<String>? list;
   bool isLoading = false;
-  RestDatasource api;
-  _PageState(){
-    api=new RestDatasource();
+  late RestDatasource api;
+  _PageState() {
+    api = new RestDatasource();
   }
 
   @override
@@ -25,25 +23,23 @@ class _PageState extends State<MainCategoryPage> {
     final height = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.grey[100],
-        key: _scaffoldKey,
-        body:FutureBuilder(
-          future: api.getCategory(context),
-          builder: (context,data){
-            if(data.hasData){
-              List<ModelCategory>list=data.data;
-              return GridView.count(
-                crossAxisCount: 2,
-                children: List.generate(list.length, (index) {
-                  return Container(
-                    alignment: AlignmentDirectional.center,
-                    color: Colors.white,
-                      margin: EdgeInsets.all(5),
+          backgroundColor: Colors.grey[100],
+          key: _scaffoldKey,
+          body: FutureBuilder(
+              future: api.getCategory(context),
+              builder: (context, data) {
+                if (data.hasData) {
+                  List<ModelCategory> list = data.data as List<ModelCategory>? ?? [];
+                  return GridView.count(
+                    crossAxisCount: 2,
+                    children: List.generate(list.length, (index) {
+                      return Container(
+                        alignment: AlignmentDirectional.center,
+                        color: Colors.white,
+                        margin: EdgeInsets.all(5),
                         child: InkWell(
                           splashColor: Colors.blue[100],
-                          onTap: ()=>{
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>SubCategoryPage(list[index])))
-                          },
+                          onTap: () => {Navigator.push(context, MaterialPageRoute(builder: (context) => SubCategoryPage(list[index])))},
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -51,7 +47,9 @@ class _PageState extends State<MainCategoryPage> {
                               CircleAvatar(
                                 radius: 50,
                                 backgroundColor: Colors.amber,
-                                child: Image.network(list[index].image,),
+                                child: Image.network(
+                                  list[index].image,
+                                ),
                               ),
                               SizedBox(
                                 height: 5,
@@ -64,17 +62,13 @@ class _PageState extends State<MainCategoryPage> {
                             ],
                           ),
                         ),
+                      );
+                    }),
                   );
-                }),
-              );
-
-            }
-            else{
-              return Center(child: CircularProgressIndicator());
-            }
-          }
-        )
-      ),
+                } else {
+                  return Center(child: CircularProgressIndicator());
+                }
+              })),
     );
   }
 }

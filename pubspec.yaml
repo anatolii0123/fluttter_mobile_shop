@@ -1,5 +1,5 @@
-name: cms_manhattan
-description: A new Flutter application.
+name: cms_manhattan_project
+description: A new Flutter project.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -18,27 +18,35 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.7.0 <3.0.0"
+  sdk: ">=2.12.0 <3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  email_validator: ^2.0.1
+  shared_preferences: ^2.0.6
+  carousel_slider: ^4.0.0
+  xml: ^5.1.2
+  http: ^0.13.3
+  dio: ^4.0.0
+  flutter_rating_bar: ^4.0.0
+  flutter_credit_card: ^3.0.0
+  dropdown_search: ^1.0.0
+  flutter_typeahead: ^3.2.1
+  multi_select_flutter: ^4.0.0
+  intl: ^0.17.0
+  flutter_html: ^2.1.2
+  webview_flutter: ^2.0.13
+  image_picker: ^0.8.4+1
+  adaptive_action_sheet: ^2.0.0
+  url_launcher: ^6.0.10
+  fluttertoast: ^8.0.8
   flutter_localizations:
-    sdk: flutter
+    sdk: flutter  
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.0
-  email_validator: ^1.0.0
-#  flutter_session: ^0.1.1
-  toast: ^0.1.5
-  shared_preferences: ^2.0.3
-  carousel_slider: ^3.0.0
-  xml: ^5.0.2
-  http: ^0.12.2
-  dio: ^3.0.10
-  flutter_rating_bar: ^4.0.0
-  flutter_credit_card: ^0.1.4
+  cupertino_icons: ^1.0.2
 
 dev_dependencies:
   flutter_test:
@@ -56,6 +64,10 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
+  # assets:
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
+
   assets:
     - images/logo.png
     - images/cart.png
@@ -80,7 +92,9 @@ flutter:
     - data/xml_payment_history.xml
     - data/xml_order_history.xml
     - data/xml_cart.xml
-  #   - images/a_dot_ham.jpeg
+    - data/xml_search.xml
+    - data/mail.html
+    - lib/mail.html
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
